@@ -226,12 +226,25 @@ $(document).ready(function() {
         var pixels = imgPixels.data;
         var w = canvas.width;
         var h = canvas.height;
-      
+        var heap=[];
+      var arr=[[]];
+      class Plot{
+        constructor(avg,x,y)
+        {
+            this.avg=avg;
+            this.x=x;
+            this.y=y;
+        }
+    }
       createSVG2(w,h);
 
         var centerx = canvas.width / 2;
         var centery = canvas.height / 2;
         var l = w * h;
+        var path =[];
+        var key = 1;
+        var dir =-1;
+        // var dir1 =-1;
         // ctx.moveTo(0,0)
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (var i = 0; i < l; i++) {
@@ -244,113 +257,134 @@ $(document).ready(function() {
     
              let y = parseInt(i / w, 10);
             let x = i - y * w;
-    // arr[x]=arr[x]||[]
-    // arr[x][y]=avg;
-            if(x%10==0&&y%8==0) //need to use variable from user for density of the pixels
-            Draw(x,y,avg,ctx)
+    arr[x]=arr[x]||[]
+    arr[x][y]=avg;
+if(avg/255<.3&&x%7==0&&y%8==0)
+{
+     const node = new Plot(avg,x,y);
+     heap.push(node);
+}
 
-            // if(x%4==0&&y%5==0) //need to use variable from user for density of the pixels
-            // Draw2(x,y,avg,ctx)
-        }
-//    canvas.parentNode.removeChild(canvas);
+  }
+// heapSort();
+heap.sort(function(a,b)
+{
+
+ 
+   if(a['avg']<b['avg'])
+   return -1;
   
+   if(a['avg']>b['avg'])
+   return 1;
+   
+
+   if(a['avg']==b['avg'])
+  { 
+      if(a['x']-b['x']<a['y']-b['y'])
+    {
+    if(a['x']<b['x'])
+   return -1;
+   if(a['x']>b['x'])
+   return 1;}
+ else
+   {
+    if(a['y']<b['y'])
+    return -1;
+    if(a['y']>b['y'])
+    return 1;
+   }
+}
+}
+);
+
+
+
+
+console.log(heap); 
+var xprev=heap[heap.length-1]['x'];
+var yprev=heap[heap.length-1]['y']; 
+//    canvas.parentNode.removeChild(canvas);
+  Draw();
+
 getSVG2(w,h);
 
 
-    function Draw(x,y,a,ctx)
+    function Draw()
     {
         
-    
-        ctx.beginPath();
-      
-        var t=((a/255)*10);
-    
-        var arc_s=.5*Math.PI;
-        var arc_end = .75*Math.PI;
-        var circle_start= 0;
-        var circle_end= 2*Math.PI;
-    
-    
-       var start =circle_start;
-        var end =circle_end;
-    if(a/255<.5) 
-    // || ((a/255)==.1))
-   { 
-// right slash direction section
-{
-    if(x<(w) && y<(h)) //  a near to 255 = white, a near to 0 = black. 
-      
-    {
-    //     ctx.strokeStyle='black'
-    // ctx.lineWidth= .5;
-    
-    var svgNS = "http://www.w3.org/2000/svg";  
-
-      //**** <FOR THE circles> ******
-      var recta = document.createElementNS(svgNS, 'circle');
-      recta.setAttributeNS(null, 'cx', x+1);
-      recta.setAttributeNS(null, 'cy', y+1);
-      recta.setAttributeNS(null, 'r',  5+Math.random()*10);
-      recta.setAttributeNS(null,'id','gg');
-      recta.setAttributeNS(null,'stroke','black');
-      recta.setAttributeNS(null,'fill','none');
-      recta.setAttributeNS(null,'stroke-width','.3');
-   
-      document.getElementById("mySVG2").appendChild(recta);
-//  console.log("x=",x);
-//  console.log("y=",y);
-//  console.log("a=",a);
-
-}
-}
-
-
-   }
-   else
-  
-    // || ((a/255)==.1))
-   { 
-// right slash direction section
-{
-    if(x<(w) && y<(h)) //  a near to 255 = white, a near to 0 = black. 
-      
-    {
-    //     ctx.strokeStyle='black'
-    // ctx.lineWidth= .5;
-    
-    var svgNS = "http://www.w3.org/2000/svg";  
-
-      //**** <FOR THE vertical line ARTSTYLE> ******
-      var recta = document.createElementNS(svgNS, 'line');
-      recta.setAttributeNS(null, 'x1', x+Math.random()*10);
-      recta.setAttributeNS(null, 'y1',  y+Math.random()*10);
-      recta.setAttributeNS(null, 'x2',  x+Math.random()*20);
-      recta.setAttributeNS(null, 'y2',  y+Math.random()*20);
-      recta.setAttributeNS(null,'id','gg');
-      recta.setAttributeNS(null,'stroke','black');
-      recta.setAttributeNS(null,'fill','none');
-      recta.setAttributeNS(null,'stroke-width','.3');
-  
-     
-
-    document.getElementById("mySVG2").appendChild(recta);
-//  console.log("x=",x);
-//  console.log("y=",y);
-//  console.log("a=",a);
-
-}
-}
-
-
-   }
-
-
-         ctx.stroke();
+    for(i=heap.length-2;i>2;i--)
+    { 
+        
+        
+ 
+      if((heap[i]['x']-xprev)>10||(heap[i]['y']-yprev)>10)
+        // path.push(" M"+heap[i]['x']+" "+heap[i]['y']){}
+        {
+          
+                xprev=heap[i]['x'];
+                yprev=heap[i]['y'];
+            
         }
+        else 
+       { path.push(" L"+heap[i]['x']+" "+heap[i]['y'])
+         xprev=heap[i]['x'];
+         yprev=heap[i]['y'];
+       }
+}  
+    }
+var d1= document.createAttribute('d');
+d1.value="M"+w/2+" "+h/2+path;
+document.getElementById('path1').setAttributeNode(d1);   
+document.getElementById('gcodeButton2').disabled = false;
+
+
+function heapify(n,i){
+    let largest = i;  // Initialize largest as root
+    let l = 2*i + 1;  // left = 2*i + 1
+    let r = 2*i + 2;  // right = 2*i + 2
+
+    if (l < n && heap[l]["avg"] > heap[largest]["avg"])
+        largest = l;
+
+    if (r < n && heap[r]["avg"] > heap[largest]["avg"])
+        largest = r;
+
+      
+
+    if (largest != i)
+    {
+        let swap = heap[i];
+        heap[i] = heap[largest];
+        heap[largest] = swap;
+
+        heapify( n, largest);
+    }
+
+}
+
+function heapSort()
+{
+    for (var i = Math.floor((heap.length-1) / 2 ); i >= 0; i--)
+    heapify( heap.length, i);
+    for( i=heap.length-1;i>=0;--i)
+    {
+        var tmp =heap[0];
+        heap[0]=heap[i];
+        heap[i]=tmp;
+
+        heapify(i,0);
+        }
+
+}
+
+
+
+     }
+
+
        
 
-       document.getElementById('gcodeButton2').disabled = false;
-           }
+
 
 
 
@@ -408,30 +442,65 @@ getSVG2(w,h);
  
     //FOR random_hatching NUM 2
     function createSVG2(width,height)
-    {
-       var svgNS = "http://www.w3.org/2000/svg";
-       var check=document.getElementById("mySVG2");
-       if(check!=null){
-           var svg=  document.getElementById("mySVG2")
-      svg.parentNode.removeChild(svg);
-       }
-       var svg = document.createElementNS(svgNS, "svg");
-       svg.setAttributeNS(null,'width',width);
-      svg.setAttributeNS(
-           'http://www.w3.org/2000/xmlns/',
-           'xmlns:xlink',
-           'http://www.w3.org/1999/xlink'
-       );
-       svg.setAttributeNS(null,'height',height);
-       svg.setAttributeNS(null,'id','mySVG2');
-       document.getElementById("container").appendChild(svg)
-       var g=document.createElementNS(svgNS,'g');
-       // g.setAttributeNS(null,'id','gg');
-       // g.setAttributeNS(null,'stroke','black');
-       // g.setAttributeNS(null,'fill','none');
-       // g.setAttributeNS(null,'stroke-width','.2');
-   
-       document.getElementById("mySVG2").appendChild(g);   
+    {  var svgNS = "http://www.w3.org/2000/svg";
+    var check=document.getElementById("mySVG2");
+    if(check!=null){
+        var svg=  document.getElementById("mySVG2")
+   svg.parentNode.removeChild(svg);
+    }
+    var svg = document.createElementNS(svgNS, "svg");
+    var g=document.createElementNS(svgNS, "g")
+    svg.setAttributeNS(null,'width',width);
+   svg.setAttributeNS(
+        'http://www.w3.org/2000/xmlns/',
+        'xmlns:xlink',
+        'http://www.w3.org/1999/xlink'
+    );
+    svg.setAttributeNS(null,'height',height);
+    svg.setAttributeNS(null,'id','mySVG2');
+    document.getElementById("container").appendChild(svg)
+    var g1=document.createElementNS(svgNS,'path');
+    var g2=document.createElementNS(svgNS,'path');
+
+    
+    
+    g1.setAttributeNS(null,'id','path1');
+    g2.setAttributeNS(null,'id','path2');
+
+    g.setAttributeNS(null,'id','gg');
+    // g.setAttributeNS(null,'fill','none');
+    // g.setAttributeNS(null,'stroke-width','.2');
+    document.getElementById("mySVG2").appendChild(g);   
+
+    document.getElementById("gg").appendChild(g1);   
+    document.getElementById("gg").appendChild(g2);   
+    
+    let strokeWidth1 = document.createAttribute('stroke-width');
+    strokeWidth1.value=".8";
+    let strokeWidth2 = document.createAttribute('stroke-width');
+    strokeWidth2.value=".3";
+    document.getElementById('path1').setAttributeNode(strokeWidth1);
+    document.getElementById('path2').setAttributeNode(strokeWidth2);
+
+    let fill1 =document.createAttribute('fill');
+    fill1.value="none";
+    let fill2 =document.createAttribute('fill');
+    fill2.value="none";   
+    document.getElementById('path1').setAttributeNode(fill1);
+    document.getElementById('path2').setAttributeNode(fill2);
+
+    let stroke1 = document.createAttribute('stroke');
+    stroke1.value="black";
+    let stroke2 = document.createAttribute('stroke');
+    stroke2.value="black";
+    document.getElementById('path1').setAttributeNode(stroke1);
+    document.getElementById('path2').setAttributeNode(stroke2);
+
+
+  
+   var d2= document.createAttribute('d');
+   d2.value="M"+0+" "+0;
+   document.getElementById('path2').setAttributeNode(d2);
     }
    
    
